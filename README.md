@@ -1,12 +1,12 @@
 ## Package task
 ## About
-task is a package for periodic tasks
+The task is a package for periodic tasks
 it contains a task interface and a scheduler
 
 
 ## Usage
 ```
-import "10.204.28.137/samzho/task"
+import "github.com/zhlicen/task"
 
 t := YourTaskImpl{}
 task.NewScheduler(3 * time.Second, t)

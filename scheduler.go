@@ -2,8 +2,8 @@ package task
 
 import (
 	"reflect"
-	"sutra/utils/debug/logs"
-	"sutra/utils/msg/errors"
+	"log"
+	"errors"
 	"sync"
 	"time"
 )
@@ -37,19 +37,19 @@ func (r *taskRunner) start() {
 				r.mutex.Unlock()
 			}
 			initChan <- 0
-			logs.Debug("Task %s[%s] started running.", taskType, r.task.Name())
+			log.Printf("Task %s[%s] started running.\n", taskType, r.task.Name())
 		loop:
 			for {
 				select {
 				case args := <-r.runChan:
 					r.task.Run(args...)
 				case <-r.quitChan:
-					logs.Debug("Task %s[%s] quit msg received.", taskType, r.task.Name())
+					log.Printf("Task %s[%s] quit msg received.\n", taskType, r.task.Name())
 					break loop
 				}
 			}
 			r.quitWg.Done()
-			logs.Debug("Task %s[%s] quited successfully.", taskType, r.task.Name())
+			log.Printf("Task %s[%s] quited successfully.\n", taskType, r.task.Name())
 		}()
 		<-initChan
 	}
@@ -62,7 +62,7 @@ func (r *taskRunner) start() {
 func (r *taskRunner) runOnce(args ...interface{}) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
-	logs.Debug("Task %s[%s] triggered.", reflect.TypeOf(r.task), r.task.Name())
+	log.Printf("Task %s[%s] triggered.\n", reflect.TypeOf(r.task), r.task.Name())
 	select {
 	case _, ok := <-r.quitChan:
 		if !ok {
@@ -72,7 +72,7 @@ func (r *taskRunner) runOnce(args ...interface{}) error {
 	default:
 	}
 	r.runChan <- args
-	logs.Debug("Task %s[%s] scheduled.", reflect.TypeOf(r.task), r.task.Name())
+	log.Printf("Task %s[%s] scheduled.\n", reflect.TypeOf(r.task), r.task.Name())
 	return nil
 
 }
@@ -86,7 +86,7 @@ func (r *taskRunner) stop() {
 	r.quitWg.Wait()
 	close(r.quitChan)
 	close(r.runChan)
-	logs.Debug("Task %s[%s] stopped.", reflect.TypeOf(r.task), r.task.Name())
+	log.Printf("Task %s[%s] stopped.\n", reflect.TypeOf(r.task), r.task.Name())
 }
 
 type scheduler struct {
@@ -113,7 +113,7 @@ func (s *scheduler) Start() {
 
 // Stop stop loop
 func (s *scheduler) Stop() {
-	logs.Debug("Stop scheduler")
+	log.Printf("Stop scheduler\n")
 	s.quitChan <- ""
 	s.runner.stop()
 	s.stopWg.Wait()
@@ -138,7 +138,7 @@ func (s *scheduler) startTimeLoop() {
 				case <-looperChan:
 					err := s.runner.runOnce()
 					if err != nil {
-						logs.Info(err.Error())
+						log.Println(err.Error())
 					}
 				case <-s.quitChan:
 					break loop

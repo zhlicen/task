@@ -9,10 +9,10 @@ it contains a task interface and a scheduler
 import "github.com/zhlicen/task"
 
 t := YourTaskImpl{}
-task.NewScheduler(3 * time.Second, t)
-task.Start()
+s := task.NewScheduler(3 * time.Second, t)
+s.Start()
 
 
 // Trigger the task once manually
-task.Trigger()
+s.Trigger()
 ```

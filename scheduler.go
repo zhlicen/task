@@ -89,7 +89,7 @@ func (r *taskRunner) stop() {
 	log.Printf("Task %s[%s] stopped.\n", reflect.TypeOf(r.task), r.task.Name())
 }
 
-type scheduler struct {
+type Scheduler struct {
 	cycle    time.Duration
 	runner   *taskRunner
 	quitChan chan interface{}
@@ -98,21 +98,21 @@ type scheduler struct {
 }
 
 // NewScheduler create scheduler
-func NewScheduler(cycle time.Duration, task Task) *scheduler {
-	s := &scheduler{cycle: cycle}
+func NewScheduler(cycle time.Duration, task Task) *Scheduler {
+	s := &Scheduler{cycle: cycle}
 	s.runner = newTaskRunner(task)
 	s.quitChan = make(chan interface{})
 	return s
 }
 
 // Start start loop
-func (s *scheduler) Start() {
+func (s *Scheduler) Start() {
 	s.runner.start()
 	s.startTimeLoop()
 }
 
 // Stop stop loop
-func (s *scheduler) Stop() {
+func (s *Scheduler) Stop() {
 	log.Printf("Stop scheduler\n")
 	s.quitChan <- ""
 	s.runner.stop()
@@ -120,11 +120,11 @@ func (s *scheduler) Stop() {
 }
 
 // Trigger trigger the task manually
-func (s *scheduler) Trigger(args ...interface{}) error {
+func (s *Scheduler) Trigger(args ...interface{}) error {
 	return s.runner.runOnce(args...)
 }
 
-func (s *scheduler) startTimeLoop() {
+func (s *Scheduler) startTimeLoop() {
 	timerFunc := func() {
 		initChan := make(chan int)
 		go func() {

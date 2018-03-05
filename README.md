@@ -1,6 +1,6 @@
 ## Package task
 ## About
-The task is a package for periodic tasks
+The task is a package for periodic tasks  
 it contains a task interface and a scheduler
 
 
